@@ -100,7 +100,7 @@ let getRepos = ({creator}, res) => {
         res.status(200).json({results: []});
         res.end();
       }
-      let array = doc.map(d => d.toJSON());
+      let array = doc.map(d => d.url);
       console.log(array);
       res.status(200).json({results: array});
       res.end();

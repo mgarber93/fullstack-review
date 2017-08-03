@@ -33,11 +33,11 @@ class App extends React.Component {
       }
     })
     .always(data => {
-      console.log('data received:', JSON.parse(data.responseText));
       console.log(data, typeof data);
+      let results = JSON.parse(data.responseText);
+      console.log('data received:', results, results.results.length);
       // add results array
-      let array = [];
-      this.setState({'repos': array}, () => {
+      this.setState({'repos': results.results}, () => {
       // clear out text box
       });
     })
