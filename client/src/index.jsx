@@ -10,12 +10,37 @@ class App extends React.Component {
     this.state = { 
       repos: []
     }
-
   }
 
+  /**
+   * Searching for a term does a post request to the express server.
+   * jQuery.post( url [, data ] [, success ] [, dataType ] )
+   * @param  {[type]} term [description]
+   * @return {[type]}      [description]
+   */
   search (term) {
     console.log(`${term} was searched`);
-    // TODO
+    $.ajax({ 
+      type: "POST",
+      url: 'http://127.0.0.1:1128/repos', 
+      data: {'term': term}, 
+      dataType: 'application/json',
+      success: function() {
+        console.log('success handler fired!');
+      },
+      error: function() {
+        console.log('error handler fired!');
+      }
+    })
+    .always(data => {
+      console.log('data received:', JSON.parse(data.responseText));
+      console.log(data, typeof data);
+      // add results array
+      let array = [];
+      this.setState({'repos': array}, () => {
+      // clear out text box
+      });
+    })
   }
 
   render () {
