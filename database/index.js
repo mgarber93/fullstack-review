@@ -101,15 +101,38 @@ let getRepos = ({creator}, res) => {
         res.end();
       }
       let array = doc.map(d => d.url);
-      console.log(array);
       res.status(200).json({results: array});
       res.end();
     });
   })
 }
 
+let getTopRepos = (req, res) => {
+  // TODO .sort() by some metric
+  Repo.find().limit(25)
+    .then((doc) => {
+      let array = doc.map(d => d.url);
+      res.status(200).json({results: array});
+      res.end();
+    })
+    .catch((doc) => {
+      res.status(404).json({results: []});
+      res.end();
+    });
+};
+
+let isValidUserName = (username) => {
+  if (!username && !String(username).trim()) {
+    return false;
+  } else {
+    return true;
+  }
+}
+
 module.exports.save = save;
+module.exports.isValidUserName = isValidUserName;
 module.exports.getUsers = getUsers;
 module.exports.addUser = addUser;
 module.exports.getRepos = getRepos;
 module.exports.updateUser = updateUser;
+module.exports.getTopRepos = getTopRepos;

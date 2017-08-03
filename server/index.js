@@ -38,17 +38,25 @@ app.post('/repos', function (req, res) {
       req.body[tuple[0]] = tuple[1];
     }
 
-    db.addUser({user: req.body.term})
-    db.getRepos({creator: req.body.term}, res);
-
+    if(req.body.term && db.isValidUserName(req.body.term)) {
+      db.addUser({user: req.body.term}) // add if not already there
+      try {
+        db.getRepos({creator: req.body.term}, res);
+      } catch (e) {
+        // user hasn't fetched yet
+        res.redirect('/repos');
+        res.end();
+      }
+    } else {
+      res.status(404);
+      res.end();
+    }
   })
 });
 
+// This route should send back the top 25 repos
 app.get('/repos', function (req, res) {
-  res.end();
-  // TODO - your code here!
-  
-  // This route should send back the top 25 repos
+  db.getTopRepos(req, res);
 });
 
 let port = 1128;

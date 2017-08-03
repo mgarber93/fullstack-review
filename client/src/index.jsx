@@ -43,6 +43,29 @@ class App extends React.Component {
     })
   }
 
+  componentDidMount() {
+    $.ajax({ 
+      type: "GET",
+      url: 'http://127.0.0.1:1128/repos', 
+      dataType: 'application/json',
+      success: function() {
+        console.log('success handler fired!');
+      },
+      error: function() {
+        console.log('error handler fired!');
+      }
+    })
+    .always(data => {
+      console.log(data, typeof data);
+      let results = JSON.parse(data.responseText);
+      console.log('data received:', results, results.results.length);
+      // add results array
+      this.setState({'repos': results.results}, () => {
+      // clear out text box
+      });
+    })
+  }
+
   render () {
     return (<div>
       <h1>Github Fetcher</h1>
