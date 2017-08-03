@@ -5,6 +5,7 @@ import Search from './components/Search.jsx';
 import RepoList from './components/RepoList.jsx';
 
 class App extends React.Component {
+  
   constructor(props) {
     super(props);
     this.state = { 
@@ -14,7 +15,7 @@ class App extends React.Component {
 
   /**
    * Searching for a term does a post request to the express server.
-   * jQuery.post( url [, data ] [, success ] [, dataType ] )
+   * TODO replace with axios.
    * @param  {[type]} term [description]
    * @return {[type]}      [description]
    */
@@ -69,7 +70,7 @@ class App extends React.Component {
   render () {
     return (<div>
       <h1>Github Fetcher</h1>
-      <RepoList repos={this.state.repos}/>
+      <RepoList repos={this.state.repos} />
       <Search onSearch={this.search.bind(this)}/>
     </div>)
   }

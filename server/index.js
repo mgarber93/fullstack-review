@@ -39,8 +39,8 @@ app.post('/repos', function (req, res) {
     }
 
     if(req.body.term && db.isValidUserName(req.body.term)) {
-      db.addUser({user: req.body.term}) // add if not already there
       try {
+        db.addUser({user: req.body.term}) // add if not already there
         db.getRepos({creator: req.body.term}, res);
       } catch (e) {
         // user hasn't fetched yet

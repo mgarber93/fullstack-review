@@ -60,13 +60,22 @@ const getUsers = () => {
  * @param  {object} options.user - github handle 
  * @return {userID or index not sure yet} 
  */
-let addUser = ({ user }, req, res, next) => {
-  User.findOneAndUpdate({username: user}, {username: user}, {upsert:true}, (err, doc) => {
-    if(err) { 
-      return undefined;
-    }
-    return doc;
-  });
+let addUser = ({ user }) => {
+  try {
+    User.findOneAndUpdate(
+      {username: user}, 
+      {username: user}, 
+      {upsert:true},
+      (err, doc) => {
+      if(err) { 
+        return undefined;
+      }
+      return doc;
+    });
+  } catch (e) {
+    console.log('new user inserted. I really need to fix this');
+    return undefined;
+  }
 }
 
 let updateUser = ( { _id, etag } ) => {
@@ -86,25 +95,37 @@ let updateUser = ( { _id, etag } ) => {
  */
 let getRepos = ({creator}, res) => {
   // lookup user 
-  User.findOne({username: creator}, (err, user) => {
-    if (err) {
-      console.error('user not found!');
-      res.status(200).json({results: []});
-      res.end();
-    }
-    console.log(user); 
-    Repo.find({creator: user['_id']}, (err, doc) => {
+  try {
+    User.findOne({username: creator}, (err, user) => {
       if (err) {
-        // dont expose internal db error to outside world
-        console.error('repo lookup error!', err);
+        console.error('user not found!');
         res.status(200).json({results: []});
         res.end();
       }
-      let array = doc.map(d => d.url);
-      res.status(200).json({results: array});
-      res.end();
-    });
-  })
+      console.log(user); 
+      if (!user['_id']) {
+        console.error('repo lookup error!', err);
+        res.status(200).json({results: []});
+        res.end();
+      } else {
+        Repo.find({creator: user['_id']}, (err, doc) => {
+          if (err) {
+            // dont expose internal db error to outside world
+            console.error('repo lookup error!', err);
+            res.status(200).json({results: []});
+            res.end();
+          }
+          let array = doc.map(d => d.url);
+          res.status(200).json({results: array});
+          res.end();
+        });
+      }
+    })
+  } catch (e) {
+    console.error('user not found!');
+    res.status(200).json({results: []});
+    res.end();
+  }
 }
 
 let getTopRepos = (req, res) => {
