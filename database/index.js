@@ -105,7 +105,7 @@ let getRepos = ({creator}, res) => {
 
 let getTopRepos = (req, res) => {
   // TODO .sort() by some metric
-  Repo.findAsync().limit(25)
+  Repo.find().limit(25)
     .then((doc) => {
       let array = doc.map(d => d.url);
       res.status(200).json({results: array});
