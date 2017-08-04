@@ -10,7 +10,7 @@ const config = require('../config.js');
  */
 const getReposByUsername = (user, etag) => {
 
-  console.log(`fetching data for ${user + (etag ? ' last fetch was ' + etag : '')}`);
+  console.log(`fetching data for ${user + (etag ? ' last fetch was ' + etag : ' for the first time!')}`);
 
   let options = {
     url: `https://api.github.com/users/${user.trim()}/repos`,

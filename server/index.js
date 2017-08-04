@@ -37,14 +37,13 @@ app.post('/repos', function (req, res) {
     for (const tuple of tuples) {
       req.body[tuple[0]] = tuple[1];
     }
-
     if(req.body.term && db.isValidUserName(req.body.term)) {
-      try {
-        db.addUser({user: req.body.term}) // add if not already there
+      if (!db.addUser({user: req.body.term})) {
+        // if user exists
         db.getRepos({creator: req.body.term}, res);
-      } catch (e) {
-        // user hasn't fetched yet
-        res.redirect('/repos');
+      } else {
+        // we are tracking a new user!
+        res.status(201);
         res.end();
       }
     } else {

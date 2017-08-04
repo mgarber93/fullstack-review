@@ -34,7 +34,7 @@ const repoSchema = mongoose.Schema({
   url: {
     type: String, 
     unique: true,
-  }
+  },
 });
 
 const Repo = mongoose.model('Repo', repoSchema);
@@ -61,30 +61,18 @@ const getUsers = () => {
  * @return {userID or index not sure yet} 
  */
 let addUser = ({ user }) => {
-  try {
-    User.findOneAndUpdate(
-      {username: user}, 
-      {username: user}, 
-      {upsert:true},
-      (err, doc) => {
-      if(err) { 
-        return undefined;
-      }
-      return doc;
-    });
-  } catch (e) {
-    console.log('new user inserted. I really need to fix this');
-    return undefined;
-  }
+  User.findOneAndUpdateAsync({username: user}, {username: user}, {upsert:true})
+    .then(doc => {
+      console.log('doc', doc);
+      return true; // inserted new user
+    })
+    .catch(err => {
+      return false;
+    }); 
 }
 
 let updateUser = ( { _id, etag } ) => {
-  User.findOneAndUpdate({_id, _id}, {etag: etag}, (err, doc) => {
-    if (err) {
-      console.error(err);
-    }
-    return doc;
-  });
+  User.findOneAndUpdateAsync({_id, _id}, {etag: etag})
 }
 
 
@@ -95,38 +83,25 @@ let updateUser = ( { _id, etag } ) => {
  */
 let getRepos = ({creator}, res) => {
   // lookup user 
-  try {
-    User.findOne({username: creator}, (err, user) => {
-      if (err) {
-        console.error('user not found!');
-        res.status(200).json({results: []});
-        res.end();
-      }
-      console.log(user); 
-      if (!user['_id']) {
-        console.error('repo lookup error!', err);
-        res.status(200).json({results: []});
-        res.end();
+  User.findOneAsync({username: creator}) 
+    .then(user => {
+      if (user === null || !user) {
+        throw user;
       } else {
-        Repo.find({creator: user['_id']}, (err, doc) => {
-          if (err) {
-            // dont expose internal db error to outside world
-            console.error('repo lookup error!', err);
-            res.status(200).json({results: []});
-            res.end();
-          }
-          let array = doc.map(d => d.url);
-          res.status(200).json({results: array});
-          res.end();
-        });
-      }
+        return Repo.findAsync({creator: user['_id']});       }
     })
-  } catch (e) {
-    console.error('user not found!');
-    res.status(200).json({results: []});
-    res.end();
-  }
-}
+    .then(doc => {
+      let array = doc.map(d => d.url);
+      res.status(200).json({results: array});
+      res.end();
+    })
+    .catch(err => {
+      // dont expose internal db error to outside world
+      console.error('repo lookup error!', err);
+      res.status(200).json({results: []});
+      res.end();
+    })
+};
 
 let getTopRepos = (req, res) => {
   // TODO .sort() by some metric
