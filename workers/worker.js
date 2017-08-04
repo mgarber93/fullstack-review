@@ -17,13 +17,21 @@ module.exports.running = true;
     db.getUsers()
       .then(users => {
         users.filter(user => !!user.username && user.username !== '')
+        // all?
         .forEach(user => {
           github.getReposByUsername(user.username, user.etag)
           .then(repos => {
             console.log(user.username + '-200');
             let etag = repos.caseless.dict.etag;
             repos.body.forEach(repo => {
-              db.save({creator: user['_id'], url: repo['svn_url']});
+              db.save({
+                name: repo.name,
+                collaborators_url: repo['collaborators_url'],
+                description: repo.description,
+                size: repo.size, 
+                creator: user['_id'], 
+                url: repo['svn_url']
+              });
             })
             // update user's etag
             db.updateUser({'_id': user['_id'], etag: etag})

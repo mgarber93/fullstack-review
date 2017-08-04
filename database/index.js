@@ -24,27 +24,35 @@ const userSchema = mongoose.Schema({
 
 const User = mongoose.model('User', userSchema);
 
-/**
- * We want to associate each user to up to 25 repos.
- * I assume each repo only has one owner.
- * @type {MongoDB scheme}
- */
 const repoSchema = mongoose.Schema({
+  name: String,
   creator: ObjectId,
   url: {
     type: String, 
     unique: true,
   },
+  collaborators_url: {
+    type: String,
+  },
+  description: String,
+  size: String,
 });
 
 const Repo = mongoose.model('Repo', repoSchema);
 
 /**
  * Save a Repo
- * @param  {} obj [description]
+ * @param  {object} obj [description]
  */
 let save = (obj) => {
-  Repo.create({creator: obj.creator, url: obj.url});
+  Repo.create({
+    name: obj.name,
+    creator: obj.creator,
+    url: obj.url,
+    collaborators_url: obj['collaborators_url'],
+    description: obj.description,
+    size: obj.size,
+  });
 }
 
 /**
@@ -118,7 +126,7 @@ let getTopRepos = (req, res) => {
 };
 
 let isValidUserName = (username) => {
-  if (!username && !String(username).trim()) {
+  if (!username || !String(username).trim() || username.split(' ').length > 1) {
     return false;
   } else {
     return true;
